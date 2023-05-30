@@ -74,7 +74,7 @@ class App {
     //get users location and load map on it
     this._getPosition();
 
-    //attack event handlers
+    //attach event handlers
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevetionField);
     containerWorkouts.addEventListener('click', this._moveTo.bind(this));
