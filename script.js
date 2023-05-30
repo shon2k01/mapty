@@ -14,7 +14,7 @@ const inputElevation = document.querySelector('.form__input--elevation');
 //workouts parent class
 class Workout {
   tag;
-  id = Date.now();
+  id;
 
   constructor(coords, type, distance, duration) {
     (this.coords = coords),
