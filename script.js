@@ -1,8 +1,5 @@
 'use strict';
 
-// prettier-ignore
-// const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
 const form = document.querySelector('.form');
 const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
@@ -24,7 +21,8 @@ class Workout {
       (this.date = new Date().toDateString().slice(4, 10)), //get month and day
       (this.id = Date.now());
   }
-
+  
+  //check if user inputs are valid
   static checkInput(params) {
     return (
       params.every(parameter => parameter > 0) ||
@@ -32,6 +30,7 @@ class Workout {
     );
   }
 }
+//Cycling class
 class Cycling extends Workout {
   constructor(coords, distance, duration, elevation) {
     super(coords, 'Cycling', distance, duration);
@@ -44,6 +43,8 @@ class Cycling extends Workout {
     return this.speed;
   }
 }
+
+//Running class
 class Running extends Workout {
   constructor(coords, distance, duration, cadence) {
     super(coords, 'Running', distance, duration);
@@ -61,7 +62,7 @@ class Running extends Workout {
 //////////APP ARCHITERCURE//////////
 ////////////////////////////////////
 
-//this class will manage the game
+//this class will manage the app
 class App {
   #workouts;
   #map;
@@ -93,6 +94,7 @@ class App {
       );
     }
   }
+  
   _loadMap(position) {
     const { latitude, longitude } = position.coords;
     const coords = [latitude, longitude];
@@ -100,14 +102,16 @@ class App {
     //map event listener
     this.#map.on('click', this._showForm.bind(this)); //show form on map click
 
-    //set tiles of map (map UI)
-    L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    //set tiles of map to google maps (map UI)
+    L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+      maxZoom: 20,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
     }).addTo(this.#map);
 
     this._loadData();
   }
+  
+  //load the workouts from local storage
   _loadData() {
     this.#workouts = JSON.parse(localStorage.getItem('workouts'));
     for (const workout of this.#workouts) {
@@ -115,16 +119,21 @@ class App {
       this._renderWorkout(workout);
     }
   }
+  
+  //present the workout form 
   _showForm(mapE) {
     this.#mapEvent = mapE;
     form.classList.remove('hidden');
     inputDistance.focus();
   }
+  
+  //toggle between the elevation and cadence fields
   _toggleElevetionField() {
     inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
     inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
   }
 
+  //create a new workout object
   _newWorkout(e) {
     //stop page from reloading on key press
     e.preventDefault();
@@ -158,8 +167,8 @@ class App {
 
     localStorage.setItem('workouts', JSON.stringify(this.#workouts));
   }
+  
   //reset fields and hide form
-
   _hideForm() {
     form.style.display = 'none';
     form.classList.add('hidden');
@@ -170,6 +179,8 @@ class App {
       inputElevation.value =
         '';
   }
+  
+  //put a pin popup on the map 
   _pin(workout) {
     L.marker(workout.coords)
       .addTo(this.#map)
@@ -187,6 +198,8 @@ class App {
       )
       .openPopup();
   }
+  
+  //create html element for workout and insert it to workout list (siplay on page)
   _renderWorkout(workout) {
     let uniqueData = [];
     if (workout.type === 'Running')
@@ -240,6 +253,7 @@ class App {
     form.insertAdjacentHTML('afterend', html);
   }
 
+  //focus screen on the selected pin on click
   _moveTo(e) {
     const workoutEl = e.target.closest('.workout');
     if (!workoutEl) return;
